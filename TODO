@@ -1,0 +1,35 @@
+Settings
+--------
+- Add two buttons for the directory list:
+  - Add directory button (DONE)
+  - Remove selected directory button
+  - Future:directory list: tree view with checkboxes. Either replace the flat
+    list or use the flat list to display the selected items from the
+    tree list.
+- dir list: make color extend all the way to the right
+
+Episode list
+------------
+- Add refresh button (DONE)
+- episode list is stored in the DB
+- Should probably auto-refresh on adding/removing directories (if
+  not causing too much lag, maybe in separate thread).  
+- horizontal scroll-bar: either always or only when needed
+
+Series
+------
+- Add add series button
+- Add remove series button
+- Add settings button
+
+View Sessions
+-------------
+- Add Remove View Session button (DONE)
+- Add Add View Session button (DONE)
+- removing view session: also remove history entries
+
+Misc
+----
+- change view history date format (shorter)
+- change view history episode column width (smaller)
+- Optimize different list horizontal sizes

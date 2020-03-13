@@ -1,0 +1,16 @@
+
+#include "CMakeVars.hpp"
+
+using namespace std;
+
+string
+GetSourceDir()
+{
+  return "@PROJECT_SOURCE_DIR@";
+}
+
+string
+GetBinaryDir()
+{
+  return "@PROJECT_BINARY_DIR@";
+}
