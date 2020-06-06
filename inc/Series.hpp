@@ -16,8 +16,13 @@ class Series : public QObject
 {
   Q_OBJECT
 
+Q_PROPERTY(int activeViewSession READ getActiveViewSession NOTIFY activeViewSessionChanged)
+
+signals:
+    void activeViewSessionChanged();
+
 public slots:
-    void OnViewSessionSelected(const QModelIndex& index);
+    void OnViewSessionSelected(int index);
 
 public:
   typedef std::shared_ptr<Series> Ptr;
@@ -34,6 +39,7 @@ public:
   QString  GetName() const { return name_; }
   void     SetName(const QString& name);
   SeriesID GetID() const { return id_; }
+  int      getActiveViewSession() const { return activeViewSession_; }
 
   //
   ViewSessionIndex GetViewSessionIndex(const ViewSessionID& id);
@@ -45,7 +51,7 @@ public:
   QStringList    GetEpisodeNumberList();
   int            GetCurrentHistoryCount() const { return history_.rowCount(); }
 
-  ViewSessionID  GetSessionID(const QModelIndex& index);
+  ViewSessionID  GetSessionID(int index);
 
   QSqlTableModel& getSessions(){ return sessionList_; }
   QSqlTableModel& getHistory() { return history_; }
@@ -61,7 +67,7 @@ public:
   //void RegisterDirectoriesView(QAbstractItemView* view);
 
 private:
-  void SelectViewSession(const QModelIndex& index);
+  void SelectViewSession(int index);
   void MarkEpisodeViewed(Episode::Index index, const ViewSessionID& sessionID);
 
 private slots:
@@ -74,6 +80,7 @@ private:
 private:
   SeriesID id_;
   QString  name_;
+  int      activeViewSession_ = -1;
 
   //QSqlTableModel directoryList_;
   DirectoryList  directoryList_;

@@ -44,7 +44,7 @@ Window {
                     id: area
                     hoverEnabled: true
                     anchors.fill: parent
-                    onClicked: cpp_model.series.OnViewSessionSelected(cpp_model.viewSessionModel.index(index, 0))
+                    onClicked: cpp_model.series.OnViewSessionSelected(index);
                 }
 
                 Text {
@@ -53,6 +53,7 @@ Window {
                     color: "#eeeeee"
                     height: parent.height
                     verticalAlignment: Text.AlignVCenter
+                    font.underline: index === cpp_model.series.activeViewSession
                 }
             }
         }
@@ -130,6 +131,9 @@ Window {
                 height: parent.height
                 verticalAlignment: Text.AlignVCenter
                 text: cpp_series.data(cpp_series.index(index, 1), 0);
+                font.underline: index === cpp_model.currentRow;
+
+                Component.onCompleted: { console.info(cpp_model.currentRow) }
             }
         }
     }

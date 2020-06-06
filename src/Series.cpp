@@ -59,9 +59,11 @@ Series::LoadLastViewSession()
 }
 
 void
-Series::OnViewSessionSelected(const QModelIndex& index)
+Series::OnViewSessionSelected(int index)
 {
-  OnViewSessionSelected( GetSessionID(index) );
+    activeViewSession_ = index;
+    OnViewSessionSelected( GetSessionID(index) );
+    activeViewSessionChanged();
 }
 
 void
@@ -90,7 +92,7 @@ Series::GetViewSessionIndex(const ViewSessionID& id)
 }
 
 void
-Series::SelectViewSession(const QModelIndex& index)
+Series::SelectViewSession(int index)
 {
   OnViewSessionSelected(index);
 }
@@ -117,7 +119,7 @@ Series::AddViewSession()
         + sessionList_.lastError().databaseText());
 
   // select the new view session
-  SelectViewSession( sessionList_.index(sessionList_.rowCount()-1, 0) );
+  SelectViewSession( sessionList_.index(sessionList_.rowCount()-1, 0).row() );
 }
 
 Episode::Index
@@ -208,12 +210,12 @@ Series::GetEpisodeNumberList()
 }
 
 ViewSessionID
-Series::GetSessionID(const QModelIndex& index)
+Series::GetSessionID(int index)
 {
-  if (! index.isValid())
-    throw Exception(tr("Trying to get view session ID based on invalid index (row: %0)").arg(index.row()));
+  if (index < 0)
+    throw Exception(tr("Trying to get view session ID based on invalid index (row: %0)").arg(index));
 
-  return ViewSessionID( sessionList_.record(index.row()).value("id").toInt() );
+  return ViewSessionID( sessionList_.record(index).value("id").toInt() );
 }
 
 void

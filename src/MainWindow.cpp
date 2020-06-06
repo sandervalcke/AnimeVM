@@ -16,78 +16,12 @@ using namespace std;
 
 MainWindow::MainWindow()
   : QMainWindow()
-  , ui_()
   , seriesMap_()
   , seriesList_()
 {
-  ui_.setupUi(this);
 
   seriesList_.setTable("series");
   seriesList_.select();
-  ui_.tableView_series->setModel(&seriesList_);
-
-  ui_.toolButton_seriesSettings->setIcon( QIcon::fromTheme("emblem-system") );
-  ui_.toolButton_refreshEpisodeList->setIcon( QIcon::fromTheme("view-refresh") );
-  ui_.toolButton_addSeries->setIcon( QIcon::fromTheme("list-add") );
-  ui_.toolButton_removeSeries->setIcon( QIcon::fromTheme("list-remove") );
-  ui_.toolButton_addViewSession->setIcon( QIcon::fromTheme("list-add") );
-  ui_.toolButton_removeViewSession->setIcon( QIcon::fromTheme("list-remove") );
-
-  connect(ui_.tableView_series, SIGNAL(clicked(const QModelIndex&)),
-	  this, SLOT(OnSeriesSelected(const QModelIndex&)) );
-
-  connect(ui_.toolButton_refreshEpisodeList, SIGNAL(clicked()), 
-	  this, SLOT(RefreshEpisodesList()));
-  connect(ui_.toolButton_seriesSettings, SIGNAL(clicked()),
-	  this, SLOT(ShowSeriesSettings()));
-  connect(ui_.toolButton_addSeries, SIGNAL(clicked()),
-	  this, SLOT(AddSeries()));
-  connect(ui_.toolButton_removeSeries, SIGNAL(clicked()),
-	  this, SLOT(RemoveSeries()));
-  connect(ui_.toolButton_addViewSession, SIGNAL(clicked()),
-	  this, SLOT(AddViewSession()));
-  connect(ui_.toolButton_removeViewSession, SIGNAL(clicked()),
-	  this, SLOT(RemoveViewSession()));
-
-  // actions
-  connect(ui_.actionAdd_Series, SIGNAL(triggered()),
-	  this, SLOT(AddSeries()));
-  connect(ui_.actionAdd_View_Session, SIGNAL(triggered()),
-	  this, SLOT(AddViewSession()));
-  connect(ui_.actionView_Episode, SIGNAL(triggered()),
-	  this, SLOT(ViewEpisode()));
-  connect(ui_.actionView_Next_Episode, SIGNAL(triggered()),
-	  this, SLOT(ViewNextEpisode()));
-  connect(ui_.action_Mark_Next_Episode_Viewed, SIGNAL(triggered()),
-	  this, SLOT(MarkNextEpisodeViewed()));
-
-  // set row heights
-  const int rowHeight = 20;
-  ui_.tableView_history->verticalHeader()->setDefaultSectionSize(rowHeight);
-  ui_.tableView_episodes->verticalHeader()->setDefaultSectionSize(rowHeight);
-
-  // Adjust the headers
-  ui_.tableView_sessions->horizontalHeader()->hide();
-  ui_.tableView_series->horizontalHeader()->hide();
-
-  ui_.tableView_series->verticalHeader()->hide();
-  ui_.tableView_sessions->verticalHeader()->hide();
-  ui_.tableView_history->verticalHeader()->hide();
-  ui_.tableView_episodes->verticalHeader()->hide();
-
-  // hide some columns
-  ui_.tableView_series->setColumnHidden(0, true);
-
-  // prevent some tables from being edited
-  ui_.tableView_sessions->setEditTriggers(QAbstractItemView::NoEditTriggers);
-  ui_.tableView_episodes->setEditTriggers(QAbstractItemView::NoEditTriggers);
-  ui_.tableView_series->setEditTriggers(QAbstractItemView::NoEditTriggers);
-
-  //
-  ui_.tableView_series->horizontalHeader()->setStretchLastSection(true);
-  ui_.tableView_sessions->horizontalHeader()->setStretchLastSection(true);
-  ui_.tableView_episodes->horizontalHeader()->setStretchLastSection(true);
-  ui_.tableView_history->horizontalHeader()->setStretchLastSection(true);
 
   // default selection
   //SelectSeries(0);
@@ -102,26 +36,18 @@ MainWindow::OnSeriesSelected(const QModelIndex& index)
     if (it == seriesMap_.end())
         seriesMap_[name] = Series::Ptr(new Series(name));
 
+    activeSeriesIndex_ = index.row();
     activeSeries_ = seriesMap_[name].get();
-
-    activeSeries_->RegisterEpisodeView(ui_.tableView_episodes);
-    activeSeries_->RegisterHistoryView(ui_.tableView_history);
-    activeSeries_->RegisterSessionsView(ui_.tableView_sessions);
-
-    // hide some columns
-    ui_.tableView_sessions->setColumnHidden(0, true);
-    ui_.tableView_sessions->setColumnHidden(1, true);
-    ui_.tableView_history->setColumnHidden(0, true);
-    ui_.tableView_history->setColumnHidden(1, true);
 
     // select last view session (if applicable)
     ViewSessionID lastSessionID = Database::GetLastViewSessionID(activeSeries_->GetID());
     if (lastSessionID.IsValid()){
-        SelectViewSession(activeSeries_->GetViewSessionIndex(lastSessionID));
+        activeSeries_->SelectViewSession(lastSessionID);
     }
 
-    viewSessionsChanged();
-    historyChanged();
+    emit seriesChanged();
+    emit viewSessionsChanged();
+    emit historyChanged();
 }
 
 //EpisodeList::DirectoryList
@@ -154,17 +80,18 @@ MainWindow::AddSeries()
 
   seriesList_.submitAll();
 
+  qWarning() << "Still need to enter into settings, read the seriesID we just wrote";
   // create settings entry
-  Query query;
-  query << "insert into settings (id, seriesID) values (null, '"
-	<< GetSeriesID() << "')";
-  query.Exec();
+//  Query query;
+//  query << "insert into settings (id, seriesID) values (null, '"
+//	<< GetSeriesID() << "')";
+//  query.Exec();
 }
 
 bool
 MainWindow::CheckSingleSelectedSeries()
 {
-  int row = GetSeriesRow();
+  int row = getCurrentRow();
   if (row < 0){
     QMessageBox::information(this, tr("Notification"), tr("Please select a series."));
   }
@@ -179,14 +106,14 @@ int
 MainWindow::GetValidSeriesRow()
 {
   if (CheckSingleSelectedSeries())
-    return GetSeriesRow();
+    return getCurrentRow();
   else
       return -1;
 }
 
 QString MainWindow::GetSelectedSeriesName() const
 {
-    return seriesList_.record(GetSeriesRow()).value("name").toString();
+    return seriesList_.record(getCurrentRow()).value("name").toString();
 }
 
 QString MainWindow::GetSelectedSeriesName(const QModelIndex &index) const
@@ -279,10 +206,6 @@ MainWindow::RemoveViewSession()
   msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
   msgBox.setDefaultButton(QMessageBox::No);
   int ret = msgBox.exec();
-
-  if (ret == QMessageBox::Yes){
-    series->RemoveViewSession( ui_.tableView_sessions->currentIndex().row() );
-  }
 }
 
 //Episode::Index
@@ -313,8 +236,8 @@ MainWindow::ViewEpisode()
   if (! CheckSingleViewSessionSelected())
     return;
 
-  series->ViewEpisode(number,
-      series->GetSessionID(ui_.tableView_sessions->currentIndex()) );
+//  series->ViewEpisode(number,
+//      series->GetSessionID(ui_.tableView_sessions->currentIndex()) );
 }
 
 void
@@ -325,18 +248,18 @@ MainWindow::MarkNextEpisodeViewed()
 
   Series* series = GetActiveSeries();
   series->MarkNextEpisodeViewed(
-      series->GetSessionID(ui_.tableView_sessions->currentIndex()) );
+      series->GetSessionID( series->getActiveViewSession() ));
 }
 
 bool
 MainWindow::CheckSingleViewSessionSelected()
 {
-  if (! ui_.tableView_sessions->currentIndex().isValid()){
-    WarnSelectViewSession();
-    return false;
+  if (activeSeries_&& activeSeries_->getActiveViewSession() < 0){
+      WarnSelectViewSession();
+      return false;
   }
-  else
-    return true;
+
+  return true;
 }
 
 void
@@ -353,22 +276,7 @@ MainWindow::ViewNextEpisode()
 
   Series* series = GetActiveSeries();
   series->ViewNextEpisode(
-      series->GetSessionID(ui_.tableView_sessions->currentIndex()) );
-}
-
-void
-MainWindow::SelectViewSession(ViewSessionIndex id)
-{
-  ui_.tableView_sessions->selectRow(id-1);
-  //not needed for some reason
-  //OnViewSessionSelected( GetSessionIndex() );
-}
-
-void
-MainWindow::SelectSeries(SeriesID id)
-{
-  ui_.tableView_series->selectRow(id.ToInt());
-  OnSeriesSelected( GetSeriesIndex() );
+      series->GetSessionID(series->getActiveViewSession()) );
 }
 
 void
@@ -384,4 +292,9 @@ void
 MainWindow::RefreshEpisodesList()
 {
   GetActiveSeries()->RefreshEpisodes();
+}
+
+int MainWindow::getCurrentRow() const
+{
+    return activeSeriesIndex_;
 }

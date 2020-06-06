@@ -5,18 +5,18 @@ project(ViewManager)
 
 # Set the version number.
 set (ViewManager_VERSION_MAJOR 0)
-set (ViewManager_VERSION_MINOR 1)
+set (ViewManager_VERSION_MINOR 2)
 
-add_definitions( -Wall -std=c++0x )
+add_definitions( -Wall)
 
 ####### Set some generic stuff #######
 
-# We want at least cmake version 2.6.0
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.14)
 
 # This is a C++ project
 # enable_language(C)
 enable_language(CXX)
+set (CMAKE_CXX_STANDARD 17)
 
 # Location where cmake build system first looks for cmake modules.
 set(CMAKE_MODULE_PATH ${ViewManager_SOURCE_DIR}/cmake)
