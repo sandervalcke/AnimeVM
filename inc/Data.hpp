@@ -10,10 +10,6 @@
 
 //#include "Model.hpp"
 
-typedef int ViewSessionIndex;
-
-
-
 
 class Episode
 {

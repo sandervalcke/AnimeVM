@@ -1,5 +1,4 @@
-#ifndef __DIRECTORYLIST_HPP__
-#define __DIRECTORYLIST_HPP__
+#pragma once
 
 #include <QAbstractListModel>
 #include <QSqlTableModel>
@@ -32,8 +31,3 @@ private:
   SeriesID       seriesID_;
   QSqlTableModel directories_;
 };
-
-
-
-
-#endif // __DIRECTORYLIST_HPP__

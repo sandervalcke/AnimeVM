@@ -14,15 +14,11 @@ add_definitions( -Wall)
 cmake_minimum_required(VERSION 3.14)
 
 # This is a C++ project
-# enable_language(C)
 enable_language(CXX)
 set (CMAKE_CXX_STANDARD 17)
 
 # Location where cmake build system first looks for cmake modules.
 set(CMAKE_MODULE_PATH ${ViewManager_SOURCE_DIR}/cmake)
-
-# put executable in the rundir
-# set( EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/rundir )
 
 ####### Check for installed libraries/exes #######
 
@@ -35,11 +31,6 @@ set(CMAKE_AUTORCC ON)
 # Find the QtWidgets library
 find_package(Qt5 COMPONENTS Core Quick Xml XmlPatterns Gui Qml Concurrent Sql Widgets REQUIRED)
 
-#find_package( Qt4 REQUIRED )
-#set ( QT_USE_QTSQL true )
-#include ( ${QT_USE_FILE} )
-#set ( LIBS ${LIBS} ${QT_LIBRARIES} )
-
 ####### Build the ViewManager project #######
 
 # Set include dirs
@@ -49,7 +40,7 @@ include_directories(
   ${ViewManager_BINARY_DIR}/src  # for the ui_* files
   )
 
-add_subdirectory( designer )
+#add_subdirectory( designer )
 
 # Compile and link the program
 add_subdirectory( src )

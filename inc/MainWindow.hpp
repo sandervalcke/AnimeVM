@@ -1,5 +1,4 @@
-#ifndef __MAINWINDOW_HPP__
-#define __MAINWINDOW_HPP__
+#pragma once
 
 #include <QtGui>
 #include <map>
@@ -8,10 +7,9 @@
 #include "Database.hpp"
 #include "Exceptions.hpp"
 #include "Series.hpp"
-#include "ui_MainWindow.h"
 
 
-class MainWindow : public QMainWindow
+class MainWindow : public QWidget
 {
 Q_OBJECT
 
@@ -48,9 +46,9 @@ public:
 public slots:
   void OnSeriesSelected(const QModelIndex& index);
 
-  void AddSeries();
+  void addSeries();
   void RemoveSeries();
-  void AddViewSession();
+  void addViewSession();
   void RemoveViewSession();
   void ViewEpisode();
   void ViewNextEpisode();
@@ -77,6 +75,3 @@ private:
 
   QSqlTableModel seriesList_;
 };
-
-
-#endif // __MAINWINDOW_HPP__

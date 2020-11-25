@@ -61,9 +61,7 @@ Series::LoadLastViewSession()
 void
 Series::OnViewSessionSelected(int index)
 {
-    activeViewSession_ = index;
     OnViewSessionSelected( GetSessionID(index) );
-    activeViewSessionChanged();
 }
 
 void
@@ -73,6 +71,9 @@ Series::OnViewSessionSelected(const ViewSessionID& sessionID)
   qDebug() << QString("sessionID='") + sessionID.ToString()  + "'";
   history_.setFilter(QString("sessionID='") + sessionID.ToString()  + "'");
 
+  activeViewSession_ = GetViewSessionIndex(sessionID);
+  activeViewSessionChanged();
+
   // store this session
   Query query;
   query << "update settings set lastSessionID='" << sessionID.ToString() << "'"
@@ -80,15 +81,15 @@ Series::OnViewSessionSelected(const ViewSessionID& sessionID)
   query.Exec();
 }
 
-ViewSessionIndex
+int
 Series::GetViewSessionIndex(const ViewSessionID& id)
 {
   for (size_t i = 0, end = sessionList_.rowCount(); i < end; ++i){
     if (ViewSessionID(sessionList_.record(i).value("id").toInt()) == id)
-      return i+1;
+      return i;
   }
 
-  throw Exception("Did not find index for view session");
+  return -1;
 }
 
 void
@@ -196,11 +197,11 @@ Series::MarkNextEpisodeViewed(ViewSessionID sessionID)
   if (! sessionID.IsValid())
     throw Exception("Invalid view session when viewing next episode");
 
-  if (GetLastViewedEpisode() == -1)
-    throw Exception(tr("Cannot view the next episode (session ID: '%0') as no episodes were viewed yet")
-		    .arg(sessionID.ToInt()));
+  auto toMark =GetLastViewedEpisode() + 1;
+  if (toMark == 0)
+      toMark = 1;
 
-  MarkEpisodeViewed(GetLastViewedEpisode() + 1, sessionID);
+  MarkEpisodeViewed(toMark, sessionID);
 }
 
 QStringList
@@ -247,9 +248,9 @@ Series::RegisterHistoryView(QAbstractItemView* view)
 void
 Series::OpenSettingsDialog()
 {
-  SeriesSettings dialog(&directoryList_);
-  if (dialog.exec())
-    return;
+//  SeriesSettings dialog(&directoryList_);
+//  if (dialog.exec())
+//    return;
 }
 
 void

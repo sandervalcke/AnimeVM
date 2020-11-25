@@ -15,8 +15,7 @@ using namespace std;
 
 
 MainWindow::MainWindow()
-  : QMainWindow()
-  , seriesMap_()
+  : seriesMap_()
   , seriesList_()
 {
 
@@ -61,7 +60,7 @@ MainWindow::OnSeriesSelected(const QModelIndex& index)
 //}
 
 void
-MainWindow::AddSeries()
+MainWindow::addSeries()
 {
   QString name = QInputDialog::getText(
     this, tr("Series name"),
@@ -179,7 +178,7 @@ MainWindow::GetActiveSeries() const
 }
 
 void
-MainWindow::AddViewSession()
+MainWindow::addViewSession()
 {  
   if (! CheckSingleSelectedSeries())
     return;

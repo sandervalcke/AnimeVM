@@ -26,6 +26,12 @@ Window {
             model: cpp_series
 
             delegate: series
+
+            RoundButton {
+                text: "+"
+                anchors { bottom: parent.bottom; right: parent.right; margins: 10 }
+                onClicked: cpp_model.addSeries();
+            }
         }
 
         ListView {
@@ -56,6 +62,12 @@ Window {
                     font.underline: index === cpp_model.series.activeViewSession
                 }
             }
+
+            RoundButton {
+                text: "+"
+                anchors { bottom: parent.bottom; right: parent.right; margins: 10 }
+                onClicked: cpp_model.addViewSession();
+            }
         }
 
         ColumnLayout {
@@ -70,6 +82,8 @@ Window {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
 
+//                cellWidth:  110
+//                cellHeight: 30
                 cellWidth:  40
                 cellHeight: 40
 
@@ -82,19 +96,33 @@ Window {
                         anchors { fill: parent; margins: 2 }
                     }
 
-                    Text {
+                    Row{
                         anchors { fill: parent }
-                        text: {
-                            var number = cpp_model.history.data(cpp_model.history.index(index, 2), 0);
-                            if (number){
-                                number;
-                            } else {
-                                "";
+                        Text {
+                            width: 40
+                            height: parent.height
+                            text: {
+                                var number = cpp_model.history.data(cpp_model.history.index(index, 2), 0);
+                                if (number){
+                                    number;
+                                } else {
+                                    "";
+                                }
                             }
+
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment:   Text.AlignVCenter
                         }
 
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment:   Text.AlignVCenter
+//                        Text {
+//                            height: parent.height
+//                            text: {
+//                                let date = new Date(cpp_model.history.data(cpp_model.history.index(index, 3), 0));
+//                                return Qt.formatDate(date, "dd-MM-yyyy");
+//                            }
+
+//                            verticalAlignment: Text.AlignVCenter
+//                        }
                     }
                 }
             }
@@ -132,8 +160,6 @@ Window {
                 verticalAlignment: Text.AlignVCenter
                 text: cpp_series.data(cpp_series.index(index, 1), 0);
                 font.underline: index === cpp_model.currentRow;
-
-                Component.onCompleted: { console.info(cpp_model.currentRow) }
             }
         }
     }

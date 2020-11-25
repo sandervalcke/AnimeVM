@@ -1,6 +1,6 @@
 
 #include <QtGui>
-#include <QMessageBox>
+#include <QDebug>
 
 #include "Database.hpp"
 #include "Exceptions.hpp"
@@ -34,14 +34,12 @@ Query::Exec()
 
   sqlquery.exec(query_.c_str());
   if (sqlquery.lastError().type() != QSqlError::NoError){
-    QMessageBox::critical(0, qApp->tr("SQL Error"),
-			  "Query:\n"
-			  + sqlquery.lastQuery()
-			  + "\n\n"
-			    "Error:\n"
-			  + sqlquery.lastError().databaseText(),
-			  QMessageBox::Cancel
-			  );
+      qCritical() << qApp->tr("SQL Error\n")
+                  << "Query:\n"
+                     + sqlquery.lastQuery()
+                     + "\n\n"
+                       "Error:\n"
+                     + sqlquery.lastError().databaseText();
   }
 
   return sqlquery;
@@ -89,16 +87,15 @@ Database::SetupDB()
 
   db = QSqlDatabase::addDatabase("QSQLITE");
   db.setDatabaseName( QString("db/ViewManager.db") );
-  qDebug() << QDir::currentPath();
+
   if (! db.open()){
-    QMessageBox::critical(0, qApp->tr("Cannot open database"),
-			 qApp->tr("Unable to establish a database connection.\n"
+    qCritical()
+            << qApp->tr("Cannot open database db/ViewManager.db\n")
+            << qApp->tr("Unable to establish a database connection.\n"
 				 "This program needs SQLite support."
 				 " Please read the Qt SQL driver documentation "
 				 "for information how to build it.\n\n"
-				 "Click Cancel to exit."),
-			 QMessageBox::Cancel
-			  );
+                 "Click Cancel to exit.");
     exit(-1);
   }
   else

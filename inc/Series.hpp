@@ -33,6 +33,7 @@ public:
   //
   void ViewEpisode(Episode::Index index, ViewSessionID sessionID);
   void ViewNextEpisode(ViewSessionID sessionID);
+  /// Marks 1 viewed if no episodes were viewed yet
   void MarkNextEpisodeViewed(ViewSessionID sessionID);
 
   // getters - setters
@@ -42,7 +43,7 @@ public:
   int      getActiveViewSession() const { return activeViewSession_; }
 
   //
-  ViewSessionIndex GetViewSessionIndex(const ViewSessionID& id);
+  int GetViewSessionIndex(const ViewSessionID& id);
   void           SelectViewSession(ViewSessionID sessionID);
   void           AddViewSession();
   void           RemoveViewSession(int row);
