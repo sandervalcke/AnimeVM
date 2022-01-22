@@ -74,63 +74,138 @@ Window {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            GridView {
-                id: grid
-
-                model: cpp_model.history
-
+            Rectangle {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
 
-//                cellWidth:  110
-//                cellHeight: 30
-                cellWidth:  40
-                cellHeight: 40
+                color: "#333333"
 
-                delegate: Item {
-                    width: grid.cellWidth;
-                    height: grid.cellHeight
+                GridView {
+                    id: grid
 
-                    Rectangle {
-                        color: "#dddddd"
-                        anchors { fill: parent; margins: 2 }
-                    }
+                    anchors { fill: parent; margins: 5 }
+                    state: "smallTiles"
 
-                    Row{
-                        anchors { fill: parent }
-                        Text {
-                            width: 40
-                            height: parent.height
-                            text: {
-                                var number = cpp_model.history.data(cpp_model.history.index(index, 2), 0);
-                                if (number){
-                                    number;
-                                } else {
-                                    "";
-                                }
-                            }
+                    model: cpp_model.history
 
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment:   Text.AlignVCenter
+                    boundsBehavior: Flickable.StopAtBounds
+
+                    cellWidth:  40
+                    cellHeight: 40
+
+                    states: [
+                        State {
+                            name: "largeTiles"
+
+                            PropertyChanges { target: grid; cellWidth: 80; cellHeight: 70 }
                         }
 
-//                        Text {
-//                            height: parent.height
-//                            text: {
-//                                let date = new Date(cpp_model.history.data(cpp_model.history.index(index, 3), 0));
-//                                return Qt.formatDate(date, "dd-MM-yyyy");
-//                            }
+                    ]
 
-//                            verticalAlignment: Text.AlignVCenter
-//                        }
+                    delegate: Loader {
+                        readonly property int index: model.index
+                        sourceComponent: grid.state === "smallTiles" ? smallTileComponent : largeTileComponent
                     }
                 }
             }
 
-            Button {
-                Layout.preferredHeight: 20
-                text: "View next"
-                onClicked: cpp_model.MarkNextEpisodeViewed();
+            RowLayout {
+                Layout.maximumHeight: 25
+
+                Button {
+                    Layout.fillHeight: true
+                    text: "Toggle view"
+                    flat: true
+                    onClicked: {
+                        if (grid.state === "smallTiles")
+                            grid.state = "largeTiles";
+                        else
+                            grid.state = "smallTiles";
+                    }
+                }
+
+                Button {
+                    Layout.fillHeight: true
+                    text: "View next"
+                    flat: true
+                    onClicked: cpp_model.MarkNextEpisodeViewed();
+                }
+            }
+        }
+    }
+
+    Component {
+        id: smallTileComponent
+
+        Item {
+            width: grid.cellWidth;
+            height: grid.cellHeight
+
+            Rectangle {
+                color: "#dddddd"
+                anchors { fill: parent; margins: 2 }
+                radius: 3
+            }
+
+            Text {
+                anchors.fill: parent
+                text: cpp_model.history.data(cpp_model.history.index(index, 2), 0) ?? ""
+
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment:   Text.AlignVCenter
+            }
+        }
+    }
+
+    Component {
+        id: largeTileComponent
+
+        Item {
+            width: grid.cellWidth;
+            height: grid.cellHeight
+
+            Rectangle {
+                color: "#eeeeee"
+                anchors { fill: parent; margins: 2 }
+                radius: 3
+            }
+
+            ColumnLayout {
+                anchors { fill: parent; margins: 5 }
+                spacing: 1
+
+                Text {
+                    Layout.fillWidth:   true
+                    Layout.fillHeight:  true
+                    Layout.bottomMargin: 5
+                    text: cpp_model.history.data(cpp_model.history.index(index, 2), 0) ?? ""
+
+                    horizontalAlignment: Text.AlignLeft
+                    verticalAlignment:   Text.AlignVCenter
+                    font.bold: true
+                }
+
+                Text {
+                    visible: grid.state === "largeTiles"
+                    Layout.fillWidth: true
+                    text: {
+                        let date = new Date(cpp_model.history.data(cpp_model.history.index(index, 3), 0));
+                        Qt.formatDate(date, "dd-MM-yyyy");
+                    }
+
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                Text {
+                    visible: grid.state === "largeTiles"
+                    Layout.fillWidth: true
+                    text: {
+                        let date = new Date(cpp_model.history.data(cpp_model.history.index(index, 3), 0));
+                        Qt.formatDateTime(date, "h:mm");
+                    }
+
+                    verticalAlignment: Text.AlignVCenter
+                }
             }
         }
     }
