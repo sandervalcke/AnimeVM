@@ -22,6 +22,7 @@ Window {
         ListView {
             Layout.preferredWidth: 250
             Layout.fillHeight: true
+            boundsBehavior: Flickable.StopAtBounds
 
             model: cpp_series
 
@@ -39,6 +40,7 @@ Window {
 
             Layout.preferredWidth: 200
             Layout.fillHeight: true
+            boundsBehavior: Flickable.StopAtBounds
 
             delegate: Rectangle {
                 width:  parent.width
